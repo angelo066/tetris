@@ -22,6 +22,8 @@ export default class Game extends Phaser.Scene {
 
     this.grupoPiezas  = this.physics.add.group();
 
+    this.grupoMuros = this.physics.add.staticGroup();
+
     this.physics.add.collider(this.grupoPiezas,this.grupoPiezas);
 
     this.background = this.add.image(this.game.config.width/2,this.game.config.height/2,"background");
@@ -32,22 +34,25 @@ export default class Game extends Phaser.Scene {
     this.scoreText.setFontSize(50,50);
 
     this.createFloor();
-
+    
+    this.createForm(1);
+    // this.createForm(0); 
+    
     var timer = this.time.addEvent({                                       
-      delay: 5000,                // ms
+      delay: 10000,                // ms
       callback: () => {
+        //this.createForm(0); 
         //Resulta que los intervalos de Phaser son cerrados, porque otra cosa no, pero parece que lo ha hecho alguien con taras mentales
         this.seleccion = Phaser.Math.Between(0,4); 
-
+        // this.createForm(4); 
         //this.createForm(this.seleccion); 
-        //this.createForm(2); 
-        
+        this.numPiezas++;
       },
       loop: true
     });
 
-    this.physics.add.collider(this.grupoPiezas,this.grupoPiezas);
-    this.physics.add.collider(this.grupoPiezas,this.floor);
+
+    this.createWalls();
   }
 
   update(time,delta){
@@ -60,21 +65,23 @@ export default class Game extends Phaser.Scene {
   }
 
   createForm(pieza){
+    this.x = Phaser.Math.Between(this.game.config.width / 1.8,this.game.config.width / 3);
+    this.y = 50;
     switch(pieza){
       case 0:
-        this.piezas[this.numPiezas] = new Pieza(this.game.config.width/2, 100, this, "l", this.floor); 
+        this.piezas[this.numPiezas] = new Pieza(this.x, this.y, this, "l", this.floor); 
         break;
       case 1:
-        this.piezas[this.numPiezas] = new Pieza(this.game.config.width/2, 100, this, "square", this.floor); 
+        this.piezas[this.numPiezas] = new Pieza(this.x, this.y, this, "square", this.floor); 
         break;
       case 2:
-        this.piezas[this.numPiezas] = new Pieza(this.game.config.width/2, 100, this, "t", this.floor); 
+        this.piezas[this.numPiezas] = new Pieza(this.x, this.y, this, "t", this.floor); 
         break;
       case 3:
-        this.piezas[this.numPiezas] = new Pieza(this.game.config.width/2, 100, this, "i", this.floor); 
+        this.piezas[this.numPiezas] = new Pieza(this.x, this.y, this, "i", this.floor); 
         break;
       case 4:
-        this.piezas[this.numPiezas] = new Pieza(this.game.config.width/2, 100, this, "s", this.floor); 
+        this.piezas[this.numPiezas] = new Pieza(this.x, this.y, this, "s", this.floor); 
         break;
     } 
     this.grupoPiezas.add(this.piezas[this.numPiezas]);
@@ -90,4 +97,26 @@ export default class Game extends Phaser.Scene {
     this.floor.body.setImmovable(true);
   }
 
+  createWalls(){
+    this.wallE = this.physics.add.existing(this.add.image(this.game.config.width/2 - 300, this.game.config.height/2 - 400));
+
+    this.wallE.body.allowGravity = false;
+
+    this.wallE.body.height = 800;
+
+    this.floor.body.setImmovable(true);
+
+    this.grupoMuros.add(this.wallE);
+
+    this.wallW = this.physics.add.existing(this.add.image(this.game.config.width/2 + 150, this.game.config.height/2 - 400));
+
+    this.wallW.body.allowGravity = false;
+
+    this.wallW.body.height = 800;
+    this.floor.body.setImmovable(true);
+
+    this.grupoMuros.add(this.wallW);
+    
+    this.physics.add.collider(this.grupoMuros,this.grupoPiezas);
+  }
 }
